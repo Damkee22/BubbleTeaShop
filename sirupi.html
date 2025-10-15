@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Tea Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        #cart-items {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+    <h1 class="text-center mb-5">Izaberi ukuse Sirupa za Bubble tea</h1>
+    <div class="row" id="flavors-list">
+        <!-- Ukusi će se generisati ovde -->
+    </div>
+
+    <hr class="my-5">
+
+    <h3>Korpa</h3>
+    <div id="cart-items" class="mb-3">
+        <p class="text-muted">Još nema stavki u korpi.</p>
+    </div>
+    <button id="send-whatsapp" class="btn btn-success" disabled>Pošalji narudžbu</button>
+</div>
+
+<script>
+    // Lista ukusa
+    const flavors = [
+        {name: "Mango sirup", price: 12},
+        {name: "Jagoda sirup", price: 12},
+        {name: "Malina sirup", price: 12},
+        {name: "Lubenica sirup", price: 12},
+        {name: "Breskva sirup", price: 12},
+        {name: "Zelena Jabuka sirup", price: 12}
+    ];
+
+    const flavorsList = document.getElementById('flavors-list');
+    const cartItems = document.getElementById('cart-items');
+    const sendButton = document.getElementById('send-whatsapp');
+    let cart = [];
+
+    // Generisanje kartica sa ukusima
+    flavors.forEach((flavor, index) => {
+        const col = document.createElement('div');
+        col.className = 'col-md-4 mb-4';
+        col.innerHTML = `
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">${flavor.name}</h5>
+                    <p class="card-text">Cena: ${flavor.price.toFixed(2)}KM</p>
+                    <button class="btn btn-primary" onclick="addToCart(${index})">Dodaj u korpu</button>
+                </div>
+            </div>
+        `;
+        flavorsList.appendChild(col);
+    });
+
+    function addToCart(index) {
+        const item = flavors[index];
+        cart.push(item);
+        updateCart();
+    }
+
+    function updateCart() {
+        cartItems.innerHTML = '';
+        if(cart.length === 0){
+            cartItems.innerHTML = '<p class="text-muted">Još nema stavki u korpi.</p>';
+            sendButton.disabled = true;
+            return;
+        }
+
+        cart.forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `
+                <span>${item.name} (${item.price.toFixed(2)}KM)</span>
+                <button class="btn btn-sm btn-danger" onclick="removeFromCart(${i})">X</button>
+            `;
+            cartItems.appendChild(div);
+        });
+        sendButton.disabled = false;
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        updateCart();
+    }
+
+    sendButton.addEventListener('click', () => {
+        if(cart.length === 0) return;
+
+        let message = "Narudžba Bubble Tea:\n";
+        let total = 0;
+        cart.forEach(item => {
+            message += `- ${item.name} (${item.price.toFixed(2)}KM)\n`;
+            total += item.price;
+        });
+        message += `Ukupno: ${total.toFixed(2)}KM`;
+
+        // Replace with tvoj broj telefona
+        const phone = "38766315037"; 
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    });
+</script>
+
+</body>
+</html>
